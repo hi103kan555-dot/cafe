@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>古民家茶屋 巣鴨 縁 (えん) - 和モダンの隠れ家</title>
+    <style>
+        :root {
+            --color-bg: #1a1917;
+            --color-beige: #e8dfd1;
+            --color-gold: #bfa47e;
+            --font-mincho: "BIZ UDPMincho", "Zen Old Mincho", serif;
+            --font-gothic: "Noto Sans JP", sans-serif;
+            --transition-slow: 2.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-beige);
+            font-family: var(--font-mincho);
+            margin: 0;
+            line-height: 1.8;
+            letter-spacing: 0.05em;
+        }
+
+        /* --- ふわっとアニメーション --- */
+        .js-scroll-trigger {
+            opacity: 0;
+            transform: translateY(40px);
+            filter: blur(8px);
+            transition: opacity 2s, transform var(--transition-slow), filter 2.5s;
+        }
+        .js-scroll-trigger.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+
+        /* --- ヘッダー（写真固定・店名アニメーション） --- */
+        header {
+            height: 100svh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            /* 背景を固定 */
+            background: url('shop.jpeg') no-repeat center center;
+            background-size: cover;
+            background-attachment: fixed; /* これで写真が固定されます */
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(26,25,23,0.2), rgba(26,25,23,0.7));
+            z-index: 2;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+        }
+
+        /* 店名をゆったり登場させる */
+        .fade-in-slow {
+            opacity: 0;
+            filter: blur(15px);
+            animation: slowAppear 3.5s ease-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes slowAppear {
+            0% { opacity: 0; filter: blur(15px); transform: scale(1.05); }
+            100% { opacity: 1; filter: blur(0); transform: scale(1); }
+        }
+
+        .header-content h1 {
+            font-size: clamp(2.2rem, 8vw, 4.5rem);
+            font-weight: normal;
+            margin: 0;
+            letter-spacing: 0.4em;
+            text-indent: 0.4em;
+        }
+
+        /* --- ナビゲーション --- */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: rgba(26, 25, 23, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(232, 223, 209, 0.1);
+        }
+        .nav-inner {
+            display: flex;
+            justify-content: center;
+            padding: 1.2rem 0;
+        }
+        nav a {
+            color: var(--color-beige);
+            text-decoration: none;
+            margin: 0 1.5rem;
+            font-size: 0.85rem;
+            font-family: var(--font-gothic);
+            transition: color 0.3s;
+        }
+        nav a:hover { color: var(--color-gold); }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+        section { padding: 8rem 0; }
+
+        /* --- メニュー（マウスオンで大きくなる） --- */
+        .menu-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+        .menu-item {
+            overflow: hidden; /* はみ出し防止 */
+            border: 1px solid rgba(232, 223, 209, 0.1);
+            padding-bottom: 2rem;
+            background: rgba(232, 223, 209, 0.02);
+        }
+        .menu-img-wrap {
+            overflow: hidden; /* 写真が拡大しても枠からはみ出さない */
+            height: 250px;
+            margin-bottom: 1.5rem;
+        }
+        .menu-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 1.2s ease; /* 拡大の速さ */
+        }
+        /* マウスオンで画像のみ拡大 */
+        .menu-item:hover img {
+            transform: scale(1.15);
+        }
+
+        .menu-item h3 { text-align: center; font-weight: normal; margin-bottom: 0.5rem; }
+        .price { display: block; text-align: center; color: var(--color-gold); font-size: 0.9rem; margin-bottom: 1rem; }
+        .menu-item p { padding: 0 1.5rem; font-size: 0.85rem; font-family: var(--font-gothic); color: rgba(232, 223, 209, 0.7); }
+
+        /* 店舗情報 */
+        .info-table { width: 100%; border-collapse: collapse; font-family: var(--font-gothic); margin-bottom: 2rem; }
+        .info-table th { text-align: left; color: var(--color-gold); font-size: 0.8rem; padding: 1.2rem 0; width: 100px; }
+        .info-table td { padding: 1.2rem 0; font-size: 0.9rem; }
+        .map-box { height: 350px; filter: grayscale(1) invert(0.9); }
+
+        footer { padding: 4rem 0; text-align: center; font-size: 0.7rem; color: rgba(232, 223, 209, 0.3); }
+
+        @media (max-width: 768px) {
+            header { background-attachment: scroll; } /* モバイルは固定を解除（挙動安定のため） */
+            .nav-inner { font-size: 0.7rem; }
+            section { padding: 5rem 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="overlay"></div>
+        <div class="header-content fade-in-slow">
+            <p>巣鴨・とげぬき地蔵尊の奥に眠る</p>
+            <h1>古民家茶屋 縁</h1>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="#concept">縁について</a>
+            <a href="#menu">お品書き</a>
+            <a href="#access">店舗情報</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section id="concept" class="js-scroll-trigger">
+            <div style="text-align:center; margin-bottom:4rem;">
+                <span style="color:var(--color-gold); font-size:0.7rem; letter-spacing:0.3em;">CONCEPT</span>
+                <h2 style="font-weight:normal; font-size:2rem; letter-spacing:0.2em;">縁について</h2>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:3rem; align-items:center;">
+                <div style="flex:1; min-width:300px;">
+                    <img src="shop.jpeg" style="width:100%; box-shadow: 20px -20px 0 rgba(232,223,209,0.05);" alt="店内">
+                </div>
+                <div style="flex:1; min-width:300px;">
+                    <h3 style="color:var(--color-gold); font-weight:normal; font-size:1.5rem;">築八十年の静寂。</h3>
+                    <p>
+                        昭和初期から続くこの建物は、かつての暮らしを今に伝えています。
+                        梁一本、柱の傷ひとつにも物語があります。
+                        そんな歴史に包まれながら、静かなひとときをお過ごしください。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="menu" class="js-scroll-trigger">
+            <div style="text-align:center; margin-bottom:4rem;">
+                <span style="color:var(--color-gold); font-size:0.7rem; letter-spacing:0.3em;">MENU</span>
+                <h2 style="font-weight:normal; font-size:2rem; letter-spacing:0.2em;">お品書き</h2>
+            </div>
+            <div class="menu-list">
+                <div class="menu-item js-scroll-trigger">
+                    <div class="menu-img-wrap"><img src="LUNCH.jpeg" alt="おにぎり"></div>
+                    <h3>旬の焼き魚とおにぎり御膳</h3>
+                    <span class="price">¥1,400</span>
+                    <p>炭火でじっくり焼き上げた旬の魚と、職人が握るふっくらおにぎり。</p>
+                </div>
+                <div class="menu-item js-scroll-trigger" style="transition-delay: 0.2s;">
+                    <div class="menu-img-wrap"><img src="desert.jpeg" alt="抹茶"></div>
+                    <h3>特製 抹茶白玉パフェ</h3>
+                    <span class="price">¥1,100</span>
+                    <p>濃厚な宇治抹茶と、自家製あんこの調和を愉しむ逸品です。</p>
+                </div>
+                <div class="menu-item js-scroll-trigger" style="transition-delay: 0.4s;">
+                    <div class="menu-img-wrap"><img src="coffee.jpeg" alt="ラテ"></div>
+                    <h3>自家焙煎 カフェラテ</h3>
+                    <span class="price">¥750</span>
+                    <p>店内で焙煎した豆を使用。クリーミーで深いコクが特徴です。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="access" class="js-scroll-trigger">
+            <div style="text-align:center; margin-bottom:4rem;">
+                <span style="color:var(--color-gold); font-size:0.7rem; letter-spacing:0.3em;">ACCESS</span>
+                <h2 style="font-weight:normal; font-size:2rem; letter-spacing:0.2em;">店舗情報</h2>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:4rem;">
+                <div>
+                    <table class="info-table">
+                        <tr><th>住所</th><td>東京都豊島区巣鴨 X-X-X</td></tr>
+                        <tr><th>アクセス</th><td>JR巣鴨駅 徒歩5分</td></tr>
+                        <tr><th>営業時間</th><td>11:00 ～ 18:00</td></tr>
+                        <tr><th>定休日</th><td>火曜・水曜</td></tr>
+                    </table>
+                </div>
+                <div class="map-box">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3238.4842106096536!2d139.73466181526038!3d35.733912180182!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60188d676878b209%3A0xc3f920215981329c!2z44Go44GS44Gs44GN5Zyw6JS15bCK6auY5bKp5a-6!5e0!3m2!1sja!2sjp!4v1619000000000!5m2!1sja!2sjp" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2026 古民家茶屋 巣鴨 縁</p>
+    </footer>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.js-scroll-trigger').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
